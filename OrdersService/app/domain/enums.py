@@ -1,6 +1,7 @@
+# OrdersService/app/domain/enums.py
 from enum import Enum
 
 class OrderStatus(str, Enum):
-    PENDING = "PENDING"
-    PAID = "PAID"
-    FAILED = "FAILED"
+    NEW = "NEW"
+    FINISHED = "FINISHED"
+    CANCELLED = "CANCELLED"

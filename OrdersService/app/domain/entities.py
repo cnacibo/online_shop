@@ -1,16 +1,14 @@
+# OrdersService/app/domain/entities.py
 from dataclasses import dataclass
-from enum import Enum
 from typing import List
-
-class OrderStatus(str, Enum):
-    PENDING = "PENDING"
-    PAID = "PAID"
-    FAILED = "FAILED"
+from app.domain.enums import OrderStatus
 
 @dataclass
 class Order:
     id: int
     user_id: str
-    items: List[str]
-    total: float
+    amount: float
+    description: str
     status: OrderStatus
+
+

@@ -1,9 +1,10 @@
+# OrdersService/app/schemas/order.py
 from pydantic import BaseModel
 from typing import List, Optional
 
 class OrderCreate(BaseModel):
-    items: List[str]
-    total: float
+    amount: float
+    description: str
 
 class OrderStatusResponse(BaseModel):
     order_id: int
@@ -12,6 +13,6 @@ class OrderStatusResponse(BaseModel):
 class OrderResponse(BaseModel):
     id: int
     user_id: str
+    amount: float
+    description: str
     status: str
-    items: List[str]
-    total: float
