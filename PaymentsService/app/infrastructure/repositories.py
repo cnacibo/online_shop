@@ -15,3 +15,10 @@ class OutboxEventModel(Base):
     event_type = Column(String)
     payload = Column(JSON)
     sent = Column(Boolean, default=False)
+
+class InboxEventModel(Base):
+    __tablename__ = "inbox"
+    id = Column(Integer, primary_key=True, index=True)
+    event_type = Column(String)
+    payload = Column(JSON)
+    processed = Column(Boolean, default=False)

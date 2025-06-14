@@ -16,7 +16,7 @@ async def start_publisher():
             result = await session.execute(select(OutboxEventModel).where(OutboxEventModel.sent == False).limit(10))
             events = result.scalars().all()
             for event in events:
-                message = aio_pika.Message(body=json.dumps(event.payload).encode())
+                message = aio_pika.Message(body=event.payload.encode())
                 await channel.default_exchange.publish(message, routing_key="payments_to_orders")
                 event.sent = True
             await session.commit()

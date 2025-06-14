@@ -2,6 +2,8 @@
 from app.infrastructure.repositories import AccountModel
 from app.infrastructure.database import AsyncSessionLocal
 from app.domain.entities import Account
+from sqlalchemy import select
+from fastapi import HTTPException
 
 
 async def view_balance(user_id: str):
@@ -10,6 +12,6 @@ async def view_balance(user_id: str):
         account = account.scalar_one_or_none()
 
         if not account:
-            raise Exception(f"Account for user {user_id} does not exist")
+            raise HTTPException(status_code=404, detail=f"Account for user {user_id} does not exist")
 
         return Account(user_id=account.user_id, balance=account.balance)

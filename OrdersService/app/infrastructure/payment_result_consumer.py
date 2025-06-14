@@ -1,3 +1,4 @@
+# OrdersService/app/infrastructure/payment_result_consumer.py
 import aio_pika
 import json
 from app.infrastructure.database import AsyncSessionLocal
@@ -7,9 +8,9 @@ from sqlalchemy import select
 async def start_payment_result_consumer():
     connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq/")
     channel = await connection.channel()
-    queue = await channel.declare_queue("payments_to_orders", durable=True)
+    await channel.declare_queue("payments_to_orders", durable=True)
 
-    async with queue.iterator() as queue_iter:
+    async with channel.iterator() as queue_iter:
         async for message in queue_iter:
             async with message.process():
                 data = json.loads(message.body)
