@@ -1,0 +1,5 @@
+fastapi
+sqlalchemy>=1.4.0
+aio_pika
+asyncpg
+uvicorn

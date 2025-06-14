@@ -22,8 +22,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # Web UI
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
@@ -57,22 +57,21 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
 
-# 🔒 payments временно отключён
-#  payments:
-#    build:
-#      context: ./PaymentsService
-#    container_name: payments
-#    ports:
-#      - "8002:8002"
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      rabbitmq:
-#        condition: service_healthy
-#    environment:
-#      DATABASE_URL: postgresql+asyncpg://orders_user:orders_pass@postgres:5432/orders
-#      RABBITMQ_URL: amqp://guest:guest@rabbitmq/
-#      PYTHONUNBUFFERED: 1
+  payments:
+    build:
+      context: ./PaymentsService
+    container_name: payments
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://orders_user:orders_pass@postgres:5432/orders  # Подключение к БД для payments
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq/  # Подключение к RabbitMQ
+      PYTHONUNBUFFERED: 1
 
 volumes:
   postgres_data:

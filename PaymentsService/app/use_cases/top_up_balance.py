@@ -1,0 +1,17 @@
+# PaymentsService/app/use_cases/top_up_balance.py
+from app.infrastructure.repositories import AccountModel
+from app.infrastructure.database import AsyncSessionLocal
+from app.domain.entities import Account
+
+
+async def top_up_balance(user_id: str, amount: float):
+    async with AsyncSessionLocal() as session:
+        account = await session.execute(select(AccountModel).where(AccountModel.user_id == user_id))
+        account = account.scalar_one_or_none()
+
+        if not account:
+            raise Exception(f"Account for user {user_id} does not exist")
+
+        account.balance += amount
+        await session.commit()
+        return Account(user_id=account.user_id, balance=account.balance)

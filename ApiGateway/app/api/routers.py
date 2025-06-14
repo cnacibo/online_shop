@@ -90,12 +90,12 @@ async def create_account(request: Request):
     response = await make_service_request(
         "POST",
         PAYMENTS_SERVICE,
-        "/account",
+        "/account",  # Создание счета
         headers={"user_id": user_id}
     )
     return JSONResponse(content=response)
 
-@router.post("/account/add")
+@router.post("/account/top-up")  # Исправленный эндпоинт
 async def topup_account(request: Request, payload: Dict[str, Any] = Body(...)):
     user_id = request.headers.get("user_id")
     if not user_id:
@@ -104,7 +104,7 @@ async def topup_account(request: Request, payload: Dict[str, Any] = Body(...)):
     response = await make_service_request(
         "POST",
         PAYMENTS_SERVICE,
-        "/account/add",
+        "/account/top-up",  # Теперь правильный путь
         json=payload,
         headers={"user_id": user_id}
     )
@@ -123,6 +123,4 @@ async def get_account_balance(request: Request):
         headers={"user_id": user_id}
     )
     return JSONResponse(content=response)
-
-
 

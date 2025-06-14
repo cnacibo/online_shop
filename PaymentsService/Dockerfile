@@ -1,7 +1,10 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
-RUN echo "print('PaymentsService placeholder')" > /app/main.py
+COPY ./app /app/app
+COPY requirements.txt .
 
-CMD ["python", "main.py"]
+RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
