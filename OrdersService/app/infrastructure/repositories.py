@@ -1,8 +1,10 @@
 # OrdersService/app/infrastructure/repositories.py
+from sqlalchemy import Column, Integer, String, Float, Enum, Boolean
 from app.domain.entities import Order, OrderStatus
 from app.domain.interfaces import OrderRepository
 from app.infrastructure.database import AsyncSessionLocal, Base
-from sqlalchemy import Column, Integer, String, Float, JSON, Enum, select
+from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import JSON
 
 class OrderModel(Base):
     __tablename__ = "orders"
@@ -10,7 +12,8 @@ class OrderModel(Base):
     user_id = Column(String)
     amount = Column(Float)
     description = Column(String)
-    status = Column(Enum(OrderStatus), default=OrderStatus.NEW)
+    status = Column(Enum(OrderStatus), default=OrderStatus.NEW, nullable=False)
+
 
 class OrderRepositoryImpl(OrderRepository):
     async def save_order(self, order: Order) -> Order:
@@ -50,10 +53,9 @@ class OrderRepositoryImpl(OrderRepository):
                 )
             return None
 
-
 class OutboxEvent(Base):
     __tablename__ = "outbox"
     id = Column(Integer, primary_key=True, index=True)
     event_type = Column(String)
-    payload = Column(String)
-    sent = Column(Integer, default=0)
+    payload = Column(JSON)
+    sent = Column(Boolean, default=False)

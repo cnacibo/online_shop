@@ -4,6 +4,7 @@ from app.domain.interfaces import OrderRepository
 from app.schemas.order import OrderCreate
 from app.infrastructure.repositories import OrderModel, OutboxEvent, OrderRepositoryImpl
 from app.infrastructure.database import AsyncSessionLocal
+import json
 
 async def create_order_use_case(user_id: str, data: OrderCreate):
     async with AsyncSessionLocal() as session:
@@ -22,7 +23,8 @@ async def create_order_use_case(user_id: str, data: OrderCreate):
                 "order_id": new_order.id,
                 "user_id": user_id,
                 "amount": data.amount
-            }.__str__()
+            },
+            sent=False
         )
         session.add(outbox_event)
 

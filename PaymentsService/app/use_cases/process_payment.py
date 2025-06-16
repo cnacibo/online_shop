@@ -5,41 +5,43 @@ from app.domain.entities import OutboxEvent
 import json
 from sqlalchemy import select
 
+import logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 async def process_payment(order_id: int, user_id: str, amount: float):
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(AccountModel).where(AccountModel.user_id == user_id))
         account = result.scalar_one_or_none()
 
         if not account:
-            event = OutboxEvent(
-                event_type="PAYMENT_FAILED",
-                payload={
-                    "order_id": order_id,
-                    "reason": "Account not found",
-                    "status": "CANCELLED"
-                }
-            )
+            payload = {
+                "order_id": order_id,
+                "reason": "Account not found",
+                "status": "CANCELLED"
+            }
+            logger.info(f"❌ PAYMENT_FAILED: Account not found | order_id={order_id} user_id={user_id}")
             session.add(OutboxEventModel(
-                event_type=event.event_type,
-                payload=json.dumps(event.payload),
-                sent=event.sent
+                event_type="PAYMENT_FAILED",
+                payload=payload,
+                sent=False
             ))
             await session.commit()
             return "Account not found"
 
+        logger.info(f"➡ Balance check | user_id={user_id} balance={account.balance} | order_amount={amount}")
+
         if account.balance < amount:
-            event = OutboxEvent(
-                event_type="PAYMENT_FAILED",
-                payload={
-                    "order_id": order_id,
-                    "reason": "Insufficient balance",
-                    "status": "CANCELLED"
-                }
-            )
+            payload = {
+                "order_id": order_id,
+                "reason": "Insufficient balance",
+                "status": "CANCELLED"
+            }
+            logger.info(f"❌ PAYMENT_FAILED: Insufficient balance | order_id={order_id} user_id={user_id} balance={account.balance} required={amount}")
             session.add(OutboxEventModel(
-                event_type=event.event_type,
-                payload=json.dumps(event.payload),
-                sent=event.sent
+                event_type="PAYMENT_FAILED",
+                payload=payload,
+                sent=False
             ))
             await session.commit()
             return "Insufficient balance"
@@ -48,21 +50,19 @@ async def process_payment(order_id: int, user_id: str, amount: float):
         account.balance -= amount
         session.add(account)
 
-        event = OutboxEvent(
-            event_type="PAYMENT_SUCCESS",
-            payload={
-                "order_id": order_id,
-                "user_id": user_id,
-                "amount": amount,
-                "status": "FINISHED"
-            }
-        )
+        payload = {
+            "order_id": order_id,
+            "user_id": user_id,
+            "amount": amount,
+            "status": "FINISHED"
+        }
+        logger.info(f"✅ PAYMENT_SUCCESS | order_id={order_id} user_id={user_id} amount={amount}")
+
         session.add(OutboxEventModel(
-            event_type=event.event_type,
-            payload=json.dumps(event.payload),
-            sent=event.sent
+            event_type="PAYMENT_SUCCESS",
+            payload=payload,
+            sent=False
         ))
 
         await session.commit()
         return "Payment successful"
-

@@ -1,6 +1,7 @@
 # OrdersService/app/schemas/order.py
 from pydantic import BaseModel
 from typing import List, Optional
+from app.domain.enums import OrderStatus
 
 class OrderCreate(BaseModel):
     amount: float
@@ -8,11 +9,17 @@ class OrderCreate(BaseModel):
 
 class OrderStatusResponse(BaseModel):
     order_id: int
-    status: str
+    status: OrderStatus
+
+    class Config:
+        from_attributes = True
 
 class OrderResponse(BaseModel):
     id: int
     user_id: str
     amount: float
     description: str
-    status: str
+    status: OrderStatus
+
+    class Config:
+        from_attributes = True
