@@ -3,7 +3,7 @@ from app.infrastructure.repositories import AccountModel
 from app.infrastructure.database import AsyncSessionLocal
 from app.domain.entities import Account
 from sqlalchemy import select
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 
 
@@ -14,6 +14,12 @@ async def top_up_balance(user_id: str, amount: float):
 
         if not account:
             raise HTTPException(status_code=404, detail=f"Account for user {user_id} does not exist")
+
+        if amount <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Top-up amount must be greater than zero"
+            )
 
         account.balance += amount
         await session.commit()

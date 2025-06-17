@@ -4,9 +4,16 @@ from app.domain.interfaces import OrderRepository
 from app.schemas.order import OrderCreate
 from app.infrastructure.repositories import OrderModel, OutboxEvent, OrderRepositoryImpl
 from app.infrastructure.database import AsyncSessionLocal
+from fastapi import HTTPException, status
 import json
 
 async def create_order_use_case(user_id: str, data: OrderCreate):
+    if data.amount <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Order amount must be greater than zero"
+        )
+
     async with AsyncSessionLocal() as session:
         new_order = OrderModel(
             user_id=user_id,
