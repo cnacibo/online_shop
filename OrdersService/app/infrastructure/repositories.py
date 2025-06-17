@@ -5,6 +5,7 @@ from app.domain.interfaces import OrderRepository
 from app.infrastructure.database import AsyncSessionLocal, Base
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import ENUM as PGEnum
 
 class OrderModel(Base):
     __tablename__ = "orders"
@@ -13,7 +14,7 @@ class OrderModel(Base):
     user_id = Column(String)
     amount = Column(Float)
     description = Column(String)
-    status = Column(Enum(OrderStatus), default=OrderStatus.NEW, nullable=False)
+    status = Column(PGEnum(OrderStatus, name="order_status", create_type=False), default=OrderStatus.NEW, nullable=False)
 
 
 class OrderRepositoryImpl(OrderRepository):

@@ -5,7 +5,7 @@ CREATE SCHEMA IF NOT EXISTS orders;
 CREATE SCHEMA IF NOT EXISTS payments;
 
 DO $$ BEGIN
-    CREATE TYPE order_status AS ENUM ('NEW', 'PAID', 'CANCELLED');
+    CREATE TYPE order_status AS ENUM ('NEW', 'FINISHED', 'CANCELLED');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
