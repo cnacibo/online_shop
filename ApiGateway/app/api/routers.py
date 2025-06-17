@@ -1,8 +1,12 @@
 # ApiGateway/app/api/routers.py
-from fastapi import APIRouter, UploadFile, File, HTTPException, Request, Body
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request, Body, Depends
 from fastapi.responses import JSONResponse
 import httpx
 from typing import Dict, Any
+from app.api.dependencies import get_user_id
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -20,25 +24,29 @@ async def make_service_request(
 ) -> Dict[str, Any]:
     url = f"{service_url}{endpoint}"
     async with httpx.AsyncClient(timeout=5.0) as client:
-        response = await client.request(
-            method=method,
-            url=url,
-            json=json,
-            params=params,
-            headers=headers,
-        )
-        response.raise_for_status()
-        return response.json()
+        try:
+            response = await client.request(
+                method=method,
+                url=url,
+                json=json,
+                params=params,
+                headers=headers,
+            )
+            response.raise_for_status()
+            return response.json()
+
+        except httpx.HTTPStatusError as exc:
+            logger.error(f"Request to {url} failed: {exc}")
+            raise HTTPException(status_code=exc.response.status_code, detail=exc.response.text)
 
 
 # Orders Service
 
 @router.post("/orders")
-async def create_order(request: Request, payload: Dict[str, Any] = Body(...)):
-    user_id = request.headers.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Missing user_id")
-
+async def create_order(
+    payload: Dict[str, Any] = Body(...),
+    user_id: str = Depends(get_user_id)
+):
     response = await make_service_request(
         "POST",
         ORDERS_SERVICE,
@@ -49,11 +57,7 @@ async def create_order(request: Request, payload: Dict[str, Any] = Body(...)):
     return JSONResponse(content=response)
 
 @router.get("/orders")
-async def list_orders(request: Request):
-    user_id = request.headers.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Missing user_id")
-
+async def list_orders(user_id: str = Depends(get_user_id)):
     response = await make_service_request(
         "GET",
         ORDERS_SERVICE,
@@ -64,11 +68,7 @@ async def list_orders(request: Request):
 
 
 @router.get("/orders/status/{order_id}")
-async def get_order_status(order_id: str, request: Request):
-    user_id = request.headers.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Missing user_id")
-
+async def get_order_status(order_id: int, user_id: str = Depends(get_user_id)):
     response = await make_service_request(
         "GET",
         ORDERS_SERVICE,
@@ -82,40 +82,28 @@ async def get_order_status(order_id: str, request: Request):
 # Payments Service
 
 @router.post("/account")
-async def create_account(request: Request):
-    user_id = request.headers.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Missing user_id")
-
+async def create_account(user_id: str = Depends(get_user_id)):
     response = await make_service_request(
         "POST",
         PAYMENTS_SERVICE,
-        "/account",  # Создание счета
+        "/account",
         headers={"user_id": user_id}
     )
     return JSONResponse(content=response)
 
-@router.post("/account/top-up")  # Исправленный эндпоинт
-async def topup_account(request: Request, payload: Dict[str, Any] = Body(...)):
-    user_id = request.headers.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Missing user_id")
-
+@router.post("/account/top-up")
+async def top_up_account(payload: Dict[str, Any] = Body(...), user_id: str = Depends(get_user_id)):
     response = await make_service_request(
         "POST",
         PAYMENTS_SERVICE,
-        "/account/top-up",  # Теперь правильный путь
+        "/account/top-up",
         json=payload,
         headers={"user_id": user_id}
     )
     return JSONResponse(content=response)
 
 @router.get("/account/balance")
-async def get_account_balance(request: Request):
-    user_id = request.headers.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Missing user_id")
-
+async def get_account_balance(user_id: str = Depends(get_user_id)):
     response = await make_service_request(
         "GET",
         PAYMENTS_SERVICE,

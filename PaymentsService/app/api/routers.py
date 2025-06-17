@@ -23,11 +23,3 @@ async def top_up_balance_route(request: TopUpRequest, user_id: str = Depends(get
 @router.get("/account/balance", response_model=BalanceResponse)
 async def view_balance_route(user_id: str = Depends(get_user_id)):
     return await view_balance(user_id)
-
-@router.post("/payment", response_model=PaymentResponse)
-async def process_payment_route(request: PaymentRequest, order_id: int, user_id: str = Depends(get_user_id)):
-    status = await process_payment(order_id, user_id, request.amount)
-    if status == "Payment successful":
-        return PaymentResponse(status="SUCCESS", message="Payment was processed successfully")
-    else:
-        raise HTTPException(status_code=400, detail=status)
