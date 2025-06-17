@@ -12,3 +12,10 @@ class PaymentResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class PaymentOutboxPayload(BaseModel):
+    order_id: int
+    user_id: str | None = None
+    amount: float | None = None
+    reason: str | None = None
+    status: PaymentStatus

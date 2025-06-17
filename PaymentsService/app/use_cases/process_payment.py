@@ -1,7 +1,8 @@
 # PaymentsService/app/use_cases/process_payment.py
 from app.infrastructure.repositories import AccountModel, OutboxEventModel
 from app.infrastructure.database import AsyncSessionLocal
-from app.domain.entities import OutboxEvent
+from app.schemas.payment import PaymentOutboxPayload
+from app.domain.enums import PaymentStatus
 import json
 from sqlalchemy import select
 
@@ -15,11 +16,12 @@ async def process_payment(order_id: int, user_id: str, amount: float):
         account = result.scalar_one_or_none()
 
         if not account:
-            payload = {
-                "order_id": order_id,
-                "reason": "Account not found",
-                "status": "CANCELLED"
-            }
+            payload = PaymentOutboxPayload(
+                order_id=order_id,
+                reason="Account not found",
+                status=PaymentStatus.CANCELLED
+            ).dict()
+
             logger.info(f"❌ PAYMENT_FAILED: Account not found | order_id={order_id} user_id={user_id}")
             session.add(OutboxEventModel(
                 event_type="PAYMENT_FAILED",
@@ -32,11 +34,12 @@ async def process_payment(order_id: int, user_id: str, amount: float):
         logger.info(f"➡ Balance check | user_id={user_id} balance={account.balance} | order_amount={amount}")
 
         if account.balance < amount:
-            payload = {
-                "order_id": order_id,
-                "reason": "Insufficient balance",
-                "status": "CANCELLED"
-            }
+            payload = PaymentOutboxPayload(
+                order_id=order_id,
+                reason="Insufficient balance",
+                status=PaymentStatus.CANCELLED
+            ).dict()
+
             logger.info(f"❌ PAYMENT_FAILED: Insufficient balance | order_id={order_id} user_id={user_id} balance={account.balance} required={amount}")
             session.add(OutboxEventModel(
                 event_type="PAYMENT_FAILED",
@@ -50,12 +53,13 @@ async def process_payment(order_id: int, user_id: str, amount: float):
         account.balance -= amount
         session.add(account)
 
-        payload = {
-            "order_id": order_id,
-            "user_id": user_id,
-            "amount": amount,
-            "status": "FINISHED"
-        }
+        payload = PaymentOutboxPayload(
+            order_id=order_id,
+            user_id=user_id,
+            amount=amount,
+            status=PaymentStatus.FINISHED
+        ).dict()
+
         logger.info(f"✅ PAYMENT_SUCCESS | order_id={order_id} user_id={user_id} amount={amount}")
 
         session.add(OutboxEventModel(

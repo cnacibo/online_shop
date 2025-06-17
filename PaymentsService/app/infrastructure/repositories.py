@@ -1,7 +1,6 @@
 # PaymentsService/app/infrastructure/repositories.py
 from sqlalchemy import Column, Integer, String, Float, Enum, Boolean, JSON
 from app.infrastructure.database import Base
-from app.domain.entities import PaymentStatus
 
 
 class AccountModel(Base):
