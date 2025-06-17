@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import JSON
 
 class OrderModel(Base):
     __tablename__ = "orders"
+    __table_args__ = {"schema": "orders"}
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String)
     amount = Column(Float)
@@ -55,6 +56,8 @@ class OrderRepositoryImpl(OrderRepository):
 
 class OutboxEvent(Base):
     __tablename__ = "outbox"
+    __table_args__ = {"schema": "orders"}
+
     id = Column(Integer, primary_key=True, index=True)
     event_type = Column(String)
     payload = Column(JSON)
