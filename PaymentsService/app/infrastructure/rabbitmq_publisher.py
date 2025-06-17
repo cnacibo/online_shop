@@ -5,6 +5,8 @@ import json
 from sqlalchemy import select
 from app.infrastructure.repositories import OutboxEventModel
 from app.infrastructure.database import AsyncSessionLocal
+import logging
+logger = logging.getLogger(__name__)
 
 async def start_publisher():
     connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq/")
@@ -17,6 +19,7 @@ async def start_publisher():
             events = result.scalars().all()
             for event in events:
                 message = aio_pika.Message(body=json.dumps(event.payload).encode())
+                logger.error(f"Sending a message about payment:) {message.body}")
                 await channel.default_exchange.publish(message, routing_key="payments_to_orders")
                 event.sent = True
             await session.commit()
