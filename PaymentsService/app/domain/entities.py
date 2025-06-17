@@ -2,10 +2,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-class PaymentStatus(str, Enum):
-    SUCCESS = "SUCCESS"
-    FAILED = "FAILED"
-
 @dataclass
 class Account:
     user_id: str
