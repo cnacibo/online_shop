@@ -13,7 +13,7 @@ AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSes
 Base = declarative_base()
 
 async def create_db_and_tables():
-    from app.infrastructure import repositories  # чтобы избежать циклических импортов
+    from app.infrastructure import repositories
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

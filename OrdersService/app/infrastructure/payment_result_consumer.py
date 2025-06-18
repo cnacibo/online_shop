@@ -22,8 +22,7 @@ async def start_payment_result_consumer():
             try:
                 status = OrderStatus(status_str)
             except ValueError as e:
-                logger.warning(f"Unknown order status received: {status_str} for order_id={order_id} | ERROR: {e}")
-                logger.error(f"Failed to parse message body: {message.body}")
+                logger.warning(f"Unknown order status received: {status_str} for order_id={order_id}\nFailed to parse message body: {message.body} | ERROR: {e}")
                 return
 
 

@@ -14,8 +14,6 @@ async def process_payment(order_id: int, user_id: str, amount: float):
         result = await session.execute(select(AccountModel).where(AccountModel.user_id == user_id))
         account = result.scalar_one_or_none()
 
-        logger.error(f"error: --<<<<<<<Processing payment>>>>>>--")
-
         if not account:
             payload = PaymentOutboxPayload(
                 order_id=order_id,
@@ -32,7 +30,6 @@ async def process_payment(order_id: int, user_id: str, amount: float):
             await session.commit()
             return "Account not found"
 
-        logger.error(f" error: Balance check | user_id={user_id} balance={account.balance} | order_amount={amount}")
 
         if account.balance < amount:
             payload = PaymentOutboxPayload(
@@ -61,7 +58,6 @@ async def process_payment(order_id: int, user_id: str, amount: float):
             status=PaymentStatus.FINISHED
         ).model_dump(mode="json")
 
-        logger.error(f"error: ✅ PAYMENT_SUCCESS | order_id={order_id} user_id={user_id} amount={amount}")
 
         session.add(OutboxEventModel(
             event_type="PAYMENT_SUCCESS",

@@ -19,7 +19,6 @@ async def start_publisher():
             events = result.scalars().all()
             for event in events:
                 message = aio_pika.Message(body=json.dumps(event.payload).encode())
-                logger.error(f"Sending a message about payment:) {message.body}")
                 await channel.default_exchange.publish(message, routing_key="payments_to_orders")
                 event.sent = True
             await session.commit()

@@ -18,7 +18,7 @@ async def start_inbox_consumer():
                 async with AsyncSessionLocal() as session:
                     inbox_event = InboxEventModel(
                         event_type="OrderCreated",
-                        payload=json.dumps(data),  # Сохраняем как JSON строку
+                        payload=json.dumps(data),
                     )
                     session.add(inbox_event)
                     await session.commit()
