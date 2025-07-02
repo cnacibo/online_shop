@@ -1,78 +1,51 @@
-# 🛍️ Online Shop Project 
+# 👩🏼‍💻️ Frontend branch
 
 --- 
 ## Описание проекта
-Это микросервисное приложение для управления 
-онлайн-магазином с функционалом заказов, платежей и маршрутизацией запросов через API Gateway.
+Фронтенд-часть онлайн магазина, в котором можно создавать и оплачивать заказы. 
 
-
-- **ApiGateway** — маршрутизирует запросы к другим сервисам.
-- **OrdersService** — сервис для управления заказами.
-- **PaymentsService** — сервис для управления аккаунтами, балансом и платежами.
-- **Postgres** — база данных PostgreSQL с начальной инициализацией.
-- **RabbitMQ** — отвечает за сообщения для асинхронной коммуникации между сервисами.
-
-Все сервисы реализованы на FastAPI, используют PostgreSQL для хранения данных и RabbitMQ для обмена сообщениями.
+- Интерфейс реализовае на `React` и взаимодействует с бекендом через `REST API`.
+- Фронтенд упакован в `Docker` контейнер и запускается через `Docker Compose` вместе
+с остальными сервисами
 
 ---
-## Структура сервисов
-Каждый сервис имеет примерно такую структуру:
+## Структура frontend-части
 ```
-service_name/
-├── app/
-│   ├── api/              # REST API маршруты и эндпоинты
-│   ├── domain/           # Основные сущности 
-│   ├── infrastructure/   # Работа с БД, брокером сообщений и внешними ресурсами
-│   ├── use_cases/        # Бизнес-логика
-│   ├── schemas/          # Модели
-│   └── main.py           # Точка запуска сервиса
-├── Dockerfile
-└── requirements.txt
+frontend/  
+├── public/              # Статические файлы  
+├── src/  
+│   ├── assets/          # Шрифты, изображения  
+│   ├── components/      # Переиспользуемые UI-компоненты  
+│   ├── features/        # Страницы приложения  
+│   ├── store/           # State-менеджер (Redux/Zustand)  
+│   ├── shared/
+│   │   ├── api/
+│   │   ├── styles/      # Глобальные стили           
+│   └── index.tsx        # Точка входа  
+├── package.json  
+└── Dockerfile           
 ```
 ---
 
-## Основные API
-
-### ApiGateway
-- Перенаправляет запросы к OrdersService и PaymentsService.
-- Централизует взаимодействие с клиентом.
-
-### OrdersService
-- POST /orders — создать заказ.
-- GET /orders — получить список заказов пользователя.
-- GET /orders/status/{order_id} — получить статус заказа.
-
-### PaymentsService
-- POST /account — создать аккаунт пользователя.
-- POST /account/top-up — пополнить баланс.
-- GET /account/balance — посмотреть текущий баланс.
-
----
 
 ## Запуск проекта
 
-Чтобы скачать проект, выполните команду:
+Запуск dev-сервера:
 
 ```
-git clone https://github.com/cnacibo/online_shop
+npm run dev
 ```
-После этого перейдите в папку проекта:
+Запуск для production-сборки:
 ```
-cd online_shop
-```
-Далее необходимо запустить проект с помощью докера:
-
-```
-docker-compose up --build
+npm run build
 ```
 
 ---
-## Доступ к сервисам
+## Доступ к сервису
 
-- **API Gateway** -> http://localhost:8000/docs#/
-- **OrdersService** -> http://localhost:8001/docs#/
-- **PaymentsService** -> http://localhost:8002/docs#/
-- **RabbitMQ** -> http://localhost:15672/#/queues (логин/пароль - guest/guest)
+- **API Gateway** -> http://localhost:3000
+- **OrdersService** -> http://localhost:3000/orders
+- **PaymentsService** -> http://localhost:3000/account
 
 
 Теперь все должно работать :))
