@@ -1,9 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@500&display=swap');
+
 @font-face {
   font-family: 'Bitcount Grid Double';
   src: url('../../assets/fonts/BitcountGridDouble.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+}
+
+@font-face {
+  font-family: 'Libertinus Mono';
+  src: url('../../assets/fonts/LibertinusMono-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 :root {
@@ -15,8 +24,6 @@
   --color-dark: #2d262c;
   --color-brown: #6d574e;
 
-  --font-main: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
-  --font-mono: 'Libertinus Mono', 'Courier New', monospace;
+  --font-mono: 'Libertinus Mono', monospace;
   --font-bitcount: 'Bitcount Grid Double', monospace;
-  --font-accent: 'Playfair Display', serif;
 }

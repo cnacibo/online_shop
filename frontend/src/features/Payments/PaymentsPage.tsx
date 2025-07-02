@@ -7,7 +7,7 @@ export const PaymentsPage = () => {
 
   return (
       <MainLayout>
-        <div>
+        <div className="account-container">
           <h2>My Account</h2>
         </div>
       </MainLayout>

@@ -33,9 +33,9 @@
   left: 50%;
   transform: translateX(-50%);
   margin: 0;
-  font-size: 3rem;
+  font-size: 4rem;
 }
 
 .right-spacer {
-  width: 100px; /* чтобы сбалансировать пространство справа */
+  width: 100px;
 }
